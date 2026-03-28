@@ -301,6 +301,7 @@ async function delTrade(id){if(!confirm('Xóa?'))return;await fetch('/api/trades
 
 // Knowledge
 const knowledge=[
+  // ═══ SMC ═══
   {t:'📊 BOS — Break of Structure',c:'Phá đỉnh (up) hoặc đáy (down) → trend tiếp tục. Nến CLOSE phá, body ≥50%.'},
   {t:'🔄 CHoCH — Change of Character',c:'Phá cấu trúc NGƯỢC chiều trend → đảo chiều. Xảy ra SAU BOS.'},
   {t:'📦 Order Block',c:'Nến cuối NGƯỢC MÀU trước impulse. Reversal ★★★★★ > Continuation ★★★★ > Breaker ★★★'},
@@ -311,6 +312,24 @@ const knowledge=[
   {t:'⏰ Kill Zone',c:'London: 14-17h VN 🔥. NY: 19-22h VN 🔥🔥. Chỉ trade trong Kill Zone.'},
   {t:'🎯 Full Setup (4/4)',c:'Trend + OB trong zone + Sweep + BOS nhỏ. 4/4 = vào lệnh.'},
   {t:'🛡️ Risk Management',c:'1-2%/lệnh. R:R ≥1:2. Max 3 lệnh/ngày. 2 thua = nghỉ.'},
+  // ═══ WYCKOFF ═══
+  {t:'📈 Wyckoff — 3 Laws',c:'1) Cung-Cầu: Giá do supply/demand quyết định. 2) Nhân-Quả: Cause tạo Effect (consolidation → breakout). 3) Nỗ lực-Kết quả: Volume + Price phải match (volume cao + giá sideway = accumulation).'},
+  {t:'📈 Wyckoff — 4 Pha',c:'1) Accumulation: Smart money mua (sideway sau downtrend). 2) Markup: Giá tăng (breakout). 3) Distribution: Smart money bán (sideway sau uptrend). 4) Markdown: Giá giảm (breakdown). Lặp lại vô hạn.'},
+  {t:'📈 Wyckoff — Schematic Accumulation',c:'PS (Preliminary Support) → SC (Selling Climax) → AR (Automatic Rally) → ST (Secondary Test) → Spring (quét SL) → LPS (Last Point of Support) → SOS (Sign of Strength) → Markup. Entry tại Spring hoặc LPS.'},
+  {t:'📈 Wyckoff — Schematic Distribution',c:'PSY (Preliminary Supply) → BC (Buying Climax) → AR (Automatic Reaction) → ST (Secondary Test) → UTAD (Upthrust After Distribution) → LPSY → SOW (Sign of Weakness) → Markdown. Entry tại UTAD hoặc LPSY.'},
+  {t:'📈 Wyckoff — 5 Steps',c:'1) Xác định trend. 2) Chọn asset mạnh/yếu. 3) Tìm cause đủ lớn (consolidation). 4) Xác định entry (Spring/UTAD). 5) Quản lý lệnh (move SL theo swing).'},
+  // ═══ ELLIOTT WAVE ═══
+  {t:'🌊 Elliott — Wave Pattern',c:'5 sóng đẩy (impulse) + 3 sóng điều chỉnh (correction) = 1 cycle hoàn chỉnh. Sóng 1-2-3-4-5 = impulse. Sóng A-B-C = correction.'},
+  {t:'🌊 Elliott — 5 Impulse Waves',c:'Wave 1: Khởi đầu (chưa rõ). Wave 2: Retrace 50-78.6% Wave 1. Wave 3: MẠNH NHẤT, dài nhất, không ngắn nhất. Wave 4: Không overlap Wave 1. Wave 5: Yếu hơn Wave 3, divergence.'},
+  {t:'🌊 Elliott — 3 Corrective Waves',c:'Wave A: Bắt đầu correction. Wave B: Retrace 38.2-78.6% Wave A (fake recovery). Wave C: Tiếp tục correction, thường = Wave A. Pattern: Zigzag (5-3-5), Flat (3-3-5), Triangle (3-3-3-3-3).'},
+  {t:'🌊 Elliott — Wave Personalities',c:'W1: Chưa tin. W2: Sợ hãi. W3: Tin tưởng, momentum. W4: Chán nản. W5: Tham lam, euphoria. WA: Phủ nhận. WB: Hy vọng. WC: Tuyệt vọng → Bottom.'},
+  {t:'🌊 Elliott — Fibonacci Rules',c:'Wave 2 retrace: 50-78.6% Wave 1. Wave 3 = 1.618x Wave 1 (typical). Wave 4 retrace: 38.2% Wave 3. Wave 5 = Wave 1 (equal) hoặc 0.618x Wave 3. Wave C = Wave A (equal) hoặc 1.618x Wave A.'},
+  // ═══ DOW THEORY ═══
+  {t:'📉 Dow Theory — 6 Tenets',c:'1) Thị trường discount everything. 2) 3 xu hướng: Primary (1-3 năm), Secondary (3 tuần-3 tháng), Minor (<3 tuần). 3) 3 pha xu hướng: Accumulation → Public Participation → Distribution. 4) Chỉ số phải confirm nhau. 5) Volume confirm trend. 6) Trend until confirmed reversal.'},
+  {t:'📉 Dow Theory — Bull/Bear Phases',c:'Bull: P1=Smart money mua. P2=Public tham gia. P3=Speculation, Euphoria. Bear: P1=Smart money bán. P2=Public panic. P3=Capitulation, despair.'},
+  {t:'📉 Dow Theory — Trend Reversal',c:'Uptrend: HH + HL. Đảo chiều khi phá HL (Higher Low) → tạo LH + LL mới. Tương tự SMC CHoCH!'},
+  // ═══ KẾT NỐI ═══
+  {t:'🔗 Kết nối 3 lý thuyết',c:'Dow Theory = nền tảng (trend concept). Elliott = chi tiết (wave counting trong trend). Wyckoff = chiến lược (entry/exit trong phases). SMC = hiện đại hóa (OB, FVG, Liquidity). TẤT CẢ đều dựa trên CUNG-CẦU.'},
 ];
 function renderKnowledge(){
   document.getElementById('knowledge-list').innerHTML=knowledge.map((k,i)=>`
