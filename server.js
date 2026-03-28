@@ -9,7 +9,15 @@ const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+
+// Static files
+const publicDir = path.join(__dirname, 'public');
+console.log('Static dir:', publicDir);
+console.log('Exists:', fs.existsSync(publicDir));
+if (fs.existsSync(publicDir)) {
+  console.log('Files:', fs.readdirSync(publicDir));
+}
+app.use(express.static(publicDir));
 
 // Database
 const dataDir = path.join(__dirname, 'data');
