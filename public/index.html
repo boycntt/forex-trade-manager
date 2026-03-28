@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Trading Journal — SMC</title>
+<style>
+:root{--bg:#0a0b0f;--bg2:#12131a;--card:#181924;--border:#2a2d3a;--text:#e8e9f0;--dim:#9ca3b4;--muted:#6b7280;--accent:#7c6cf0;--accent2:#a78bfa;--green:#34d399;--red:#f87171;--orange:#fbbf24;--blue:#60a5fa;--r:12px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.app{display:flex;min-height:100vh}
+.sidebar{width:240px;background:var(--bg2);border-right:1px solid var(--border);padding:20px 0;position:fixed;height:100vh;overflow-y:auto}
+.main{margin-left:240px;flex:1;padding:24px}
+.logo{padding:0 20px 20px;border-bottom:1px solid var(--border);margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.logo-icon{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:16px}
+.nav{display:flex;align-items:center;gap:10px;padding:10px 20px;color:var(--dim);font-size:14px;cursor:pointer;border-radius:var(--r);margin:2px 8px;transition:.2s;text-decoration:none}
+.nav:hover{background:rgba(124,108,240,.1);color:var(--text)}
+.nav.active{background:rgba(124,108,240,.15);color:var(--accent2);font-weight:600}
+.sec{padding:16px 20px 4px;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;font-weight:700}
+.page{display:none}.page.active{display:block}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:24px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:20px;transition:.2s}
+.stat:hover{border-color:#353849;transform:translateY(-2px);box-shadow:0 4px 20px rgba(0,0,0,.3)}
+.stat .lb{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.stat .vl{font-size:28px;font-weight:700}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:24px;margin-bottom:20px}
+.card h2{font-size:16px;font-weight:600;margin-bottom:16px}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:11px;color:var(--muted);text-transform:uppercase;padding:10px;border-bottom:1px solid var(--border)}
+td{padding:12px 10px;border-bottom:1px solid rgba(42,45,58,.4);font-size:14px}
+tr:hover{background:rgba(124,108,240,.05)}
+.badge{padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600}
+.b-buy{background:rgba(52,211,153,.15);color:var(--green)}
+.b-sell{background:rgba(248,113,113,.15);color:var(--red)}
+.b-win{background:rgba(52,211,153,.15);color:var(--green)}
+.b-loss{background:rgba(248,113,113,.15);color:var(--red)}
+.b-run{background:rgba(96,165,250,.15);color:var(--blue)}
+.b-be{background:rgba(251,191,36,.15);color:var(--orange)}
+.btn{padding:10px 20px;border-radius:8px;border:none;cursor:pointer;font-size:14px;font-weight:600;transition:.2s;display:inline-flex;align-items:center;gap:6px}
+.btn:active{transform:scale(.97)}
+.btn-p{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;box-shadow:0 2px 12px rgba(124,108,240,.3)}
+.btn-p:hover{box-shadow:0 4px 20px rgba(124,108,240,.5)}
+.btn-d{background:rgba(248,113,113,.15);color:var(--red);border:1px solid rgba(248,113,113,.2)}
+.btn-g{background:transparent;color:var(--dim);border:1px solid var(--border)}
+.btn-g:hover{border-color:var(--accent);color:var(--text)}
+.btn-s{padding:6px 12px;font-size:12px}
+.fg{margin-bottom:16px}
+.fg label{display:block;font-size:13px;color:var(--dim);margin-bottom:6px}
+.fg input,.fg select,.fg textarea{width:100%;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;outline:none;font-family:inherit}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(124,108,240,.15)}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:100;align-items:center;justify-content:center}
+.mo.on{display:flex}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;width:560px;max-width:95vw;max-height:90vh;overflow-y:auto}
+.pos{color:var(--green);font-weight:600}
+.neg{color:var(--red);font-weight:600}
+.ch{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.hamburger{display:none;background:none;border:none;color:var(--text);font-size:24px;cursor:pointer;position:fixed;top:12px;left:12px;z-index:50}
+@media(max-width:768px){
+  .sidebar{display:none;position:fixed;z-index:100;width:260px;box-shadow:2px 0 20px rgba(0,0,0,.5)}
+  .sidebar.open{display:block}
+  .hamburger{display:block}
+  .main{margin-left:0;padding:16px;padding-top:56px}
+  .grid{grid-template-columns:1fr 1fr}
+  .fr{grid-template-columns:1fr}
+  .stat .vl{font-size:20px}
+}
+</style>
+</head>
+<body>
+
+<button class="hamburger" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰</button>
+
+<div class="app">
+<nav class="sidebar">
+  <div class="logo">
+    <div class="logo-icon">📊</div>
+    <div><div style="font-size:15px;font-weight:700">Trading Journal</div><div style="font-size:9px;color:var(--muted)">SMC v1.0</div></div>
+  </div>
+  <div class="sec">Trading</div>
+  <div class="nav active" onclick="showPage('dashboard',this)"><span style="width:20px;text-align:center">📈</span> Dashboard</div>
+  <div class="nav" onclick="showPage('journal',this)"><span style="width:20px;text-align:center">📓</span> Journal</div>
+  <div class="nav" onclick="showPage('watchlist',this)"><span style="width:20px;text-align:center">👁️</span> Watchlist</div>
+  <div class="sec">Học tập</div>
+  <div class="nav" onclick="showPage('knowledge',this)"><span style="width:20px;text-align:center">📚</span> SMC Knowledge</div>
+  <div class="nav" onclick="showPage('psychology',this)"><span style="width:20px;text-align:center">🧠</span> Tâm lý</div>
+</nav>
+
+<div class="main">
+
+<!-- Dashboard -->
+<div id="page-dashboard" class="page active">
+  <div class="ch"><h2 style="font-size:22px">📈 Dashboard</h2>
+    <button class="btn btn-p" onclick="showPage('journal',document.querySelectorAll('.nav')[1])">+ Thêm giao dịch</button></div>
+  <div class="grid" id="stats-grid"></div>
+  <div class="card"><h2>💹 P&L — 30 ngày</h2>
+    <div id="chart" style="height:180px;display:flex;align-items:flex-end;gap:2px;padding:16px 0"></div>
+  </div>
+</div>
+
+<!-- Journal -->
+<div id="page-journal" class="page">
+  <div class="ch"><h2 style="font-size:22px">📓 Trading Journal</h2>
+    <button class="btn btn-p" onclick="openModal()">+ Thêm giao dịch</button></div>
+  <div class="card" style="padding:0;overflow-x:auto">
+    <table><thead><tr><th>Ngày</th><th>Cặp</th><th>Hướng</th><th>Setup</th><th>Session</th><th>✓</th><th>R:R</th><th>Result</th><th>P&L</th><th></th></tr></thead>
+    <tbody id="trades-body"></tbody></table>
+  </div>
+</div>
+
+<!-- Knowledge -->
+<div id="page-knowledge" class="page">
+  <h2 style="margin-bottom:20px;font-size:22px">📚 SMC Knowledge</h2>
+  <div id="knowledge-list"></div>
+</div>
+
+<!-- Psychology -->
+<div id="page-psychology" class="page">
+  <h2 style="margin-bottom:20px;font-size:22px">🧠 Tâm lý giao dịch</h2>
+  <div class="card"><h2>😊 Mood Tracker</h2>
+    <div style="display:flex;gap:10px;flex-wrap:wrap" id="mood-btns"></div>
+    <div id="mood-result" style="margin-top:12px;padding:12px;background:var(--bg);border-radius:8px;display:none"></div>
+  </div>
+  <div class="card"><h2>⚔️ 4 Kẻ thù</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div style="background:var(--bg);padding:14px;border-radius:8px;border-left:3px solid var(--red)"><b style="color:var(--red)">SỢ HÃI</b><div style="font-size:13px;color:var(--dim);margin-top:4px">Sợ mất tiền → bỏ lỡ setup</div></div>
+      <div style="background:var(--bg);padding:14px;border-radius:8px;border-left:3px solid var(--orange)"><b style="color:var(--orange)">THAM LAM</b><div style="font-size:13px;color:var(--dim);margin-top:4px">Không chốt TP → lỗ</div></div>
+      <div style="background:var(--bg);padding:14px;border-radius:8px;border-left:3px solid var(--blue)"><b style="color:var(--blue)">HY VỌNG</b><div style="font-size:13px;color:var(--dim);margin-top:4px">Move SL → SL lớn hơn</div></div>
+      <div style="background:var(--bg);padding:14px;border-radius:8px;border-left:3px solid var(--accent2)"><b style="color:var(--accent2)">HỐI HẬN</b><div style="font-size:13px;color:var(--dim);margin-top:4px">Revenge trade</div></div>
+    </div>
+  </div>
+  <div class="card"><h2>💪 Affirmation</h2>
+    <div style="background:linear-gradient(135deg,var(--accent),var(--accent2));padding:24px;border-radius:12px;text-align:center">
+      <div id="aff-text" style="font-size:18px;font-weight:700;margin-bottom:8px"></div>
+      <button class="btn btn-g" onclick="nextAff()">🔄</button>
+    </div>
+  </div>
+</div>
+
+<!-- Watchlist -->
+<div id="page-watchlist" class="page">
+  <div class="ch"><h2 style="font-size:22px">👁️ Watchlist</h2>
+    <button class="btn btn-p" onclick="openWL()">+ Thêm</button></div>
+  <div id="wl-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px"></div>
+</div>
+
+</div></div>
+
+<!-- Trade Modal -->
+<div class="mo" id="modal-trade">
+<div class="modal">
+  <h3 style="margin-bottom:20px">📓 Thêm giao dịch SMC</h3>
+  <form id="trade-form" onsubmit="saveTrade(event)">
+    <div style="background:var(--bg);padding:12px;border-radius:8px;margin-bottom:16px">
+      <div style="font-size:11px;color:var(--accent2);margin-bottom:8px;font-weight:600">📊 THÔNG TIN</div>
+      <div class="fr">
+        <div class="fg"><label>Ngày *</label><input type="date" id="t-date" required></div>
+        <div class="fg"><label>Cặp tiền *</label><input id="t-pair" required placeholder="EUR/USD"></div>
+      </div>
+      <div class="fr">
+        <div class="fg"><label>Hướng</label><select id="t-dir"><option>BUY</option><option>SELL</option></select></div>
+        <div class="fg"><label>Session</label><select id="t-session"><option value="">--</option><option>London</option><option>NY</option><option>Asian</option></select></div>
+      </div>
+    </div>
+    <div style="background:var(--bg);padding:12px;border-radius:8px;margin-bottom:16px">
+      <div style="font-size:11px;color:var(--accent2);margin-bottom:8px;font-weight:600">🎯 SMC SETUP</div>
+      <div class="fg"><label>Setup Type</label>
+        <select id="t-setup"><option value="">-- Chọn --</option><option>OB Retest</option><option>CHoCH + OB</option><option>Kill Zone Reversal</option><option>Trend Continuation</option><option>FVG Fill</option><option>Breaker Block</option><option>Liquidity Sweep</option></select>
+      </div>
+      <div class="fg"><label>Checklist (<span id="ck-count">0</span>/10)</label>
+        <div id="checklist" style="display:grid;grid-template-columns:1fr 1fr;gap:4px 12px;font-size:13px"></div>
+      </div>
+    </div>
+    <div style="background:var(--bg);padding:12px;border-radius:8px;margin-bottom:16px">
+      <div style="font-size:11px;color:var(--accent2);margin-bottom:8px;font-weight:600">💰 GIÁ & KẾT QUẢ</div>
+      <div class="fr">
+        <div class="fg"><label>Entry</label><input type="number" id="t-entry" step="0.00001"></div>
+        <div class="fg"><label>SL</label><input type="number" id="t-sl" step="0.00001"></div>
+      </div>
+      <div class="fr">
+        <div class="fg"><label>TP</label><input type="number" id="t-tp" step="0.00001"></div>
+        <div class="fg"><label>R:R</label><input type="number" id="t-rr" step="0.1"></div>
+      </div>
+      <div class="fr">
+        <div class="fg"><label>Result</label><select id="t-result"><option>RUNNING</option><option>WIN</option><option>LOSS</option><option>BE</option></select></div>
+        <div class="fg"><label>P&L ($)</label><input type="number" id="t-pnl" step="0.01"></div>
+      </div>
+    </div>
+    <div style="background:var(--bg);padding:12px;border-radius:8px;margin-bottom:16px">
+      <div style="font-size:11px;color:var(--accent2);margin-bottom:8px;font-weight:600">🧠 TÂM LÝ</div>
+      <div class="fg"><label>Cảm xúc</label><select id="t-emotions"><option value="">--</option><option>😎 Tự tin</option><option>😌 Bình tĩnh</option><option>😰 Lo lắng</option><option>🤑 FOMO</option><option>😤 Revenge</option></select></div>
+      <div class="fg"><label>Ghi chú</label><textarea id="t-notes" rows="2"></textarea></div>
+      <div class="fg"><label>Bài học</label><textarea id="t-lessons" rows="2"></textarea></div>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button type="button" class="btn btn-g" onclick="closeModal('modal-trade')">Hủy</button>
+      <button type="submit" class="btn btn-p">💾 Lưu</button>
+    </div>
+  </form>
+</div>
+</div>
+
+<!-- Watchlist Modal -->
+<div class="mo" id="modal-wl">
+<div class="modal">
+  <h3 style="margin-bottom:20px">👁️ Thêm Watchlist</h3>
+  <form onsubmit="saveWL(event)">
+    <div class="fr">
+      <div class="fg"><label>Cặp tiền *</label><input id="w-pair" required placeholder="EUR/USD"></div>
+      <div class="fg"><label>Bias</label><select id="w-bias"><option>NEUTRAL</option><option>BUY</option><option>SELL</option></select></div>
+    </div>
+    <div class="fg"><label>Ghi chú</label><textarea id="w-notes" rows="3"></textarea></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button type="button" class="btn btn-g" onclick="closeModal('modal-wl')">Hủy</button>
+      <button type="submit" class="btn btn-p">Lưu</button>
+    </div>
+  </form>
+</div>
+</div>
+
+<script>
+const f=n=>(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+// Navigation
+function showPage(name,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  if(el)el.classList.add('active');
+  document.querySelector('.sidebar').classList.remove('open');
+  if(name==='dashboard')loadDashboard();
+  if(name==='journal')loadTrades();
+  if(name==='watchlist')loadWatchlist();
+}
+
+// Modal
+function openModal(id='modal-trade'){
+  document.getElementById('t-date').value=new Date().toISOString().slice(0,10);
+  document.getElementById(id).classList.add('on');
+}
+function closeModal(id){document.getElementById(id).classList.remove('on')}
+document.querySelectorAll('.mo').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('on')}));
+
+// Dashboard
+async function loadDashboard(){
+  const s=await fetch('/api/stats').then(r=>r.json()).catch(()=>({total:0,wins:0,losses:0,be:0,winRate:0,pnl:0,avgRR:0,daily:[]}));
+  document.getElementById('stats-grid').innerHTML=`
+    <div class="stat"><div class="lb">Total P&L</div><div class="vl ${s.pnl>=0?'pos':'neg'}">${s.pnl>=0?'+':''}$${f(s.pnl)}</div></div>
+    <div class="stat"><div class="lb">Win Rate</div><div class="vl ${+s.winRate>=50?'pos':'neg'}">${s.winRate}%</div><div style="font-size:12px;color:var(--dim);margin-top:4px">${s.wins}W/${s.losses}L/${s.be}BE</div></div>
+    <div class="stat"><div class="lb">Trades</div><div class="vl">${s.total}</div></div>
+    <div class="stat"><div class="lb">Avg R:R</div><div class="vl">${s.avgRR}</div></div>`;
+  const ch=document.getElementById('chart');
+  if(!s.daily.length){ch.innerHTML='<div style="width:100%;text-align:center;color:var(--muted);align-self:center">Chưa có dữ liệu</div>';return;}
+  const mx=Math.max(...s.daily.map(d=>Math.abs(d.pnl)),1);
+  ch.innerHTML=s.daily.map(d=>{const h=Math.max((Math.abs(d.pnl)/mx)*150,4);return`<div style="flex:1;height:${h}px;background:${d.pnl>=0?'var(--green)':'var(--red)'};border-radius:3px 3px 0 0;min-width:4px" title="${d.date}: ${d.pnl>=0?'+':''}$${f(d.pnl)}"></div>`;}).join('');
+}
+
+// Journal
+async function loadTrades(){
+  const trades=await fetch('/api/trades').then(r=>r.json()).catch(()=>[]);
+  document.getElementById('trades-body').innerHTML=trades.length?'':`<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:40px">Chưa có giao dịch</td></tr>`;
+  document.getElementById('trades-body').innerHTML=trades.map(t=>{
+    const ck=(t.checklist||'').split(',').filter(Boolean).length;
+    return`<tr>
+      <td>${t.date}<br><span style="font-size:11px;color:var(--muted)">${t.time||''}</span></td>
+      <td><b>${t.pair}</b></td>
+      <td><span class="badge b-${t.direction==='BUY'?'buy':'sell'}">${t.direction}</span></td>
+      <td style="font-size:12px">${t.setup||'-'}</td>
+      <td style="font-size:12px">${t.session||'-'}</td>
+      <td style="font-weight:600;color:${ck>=8?'var(--green)':'var(--orange)'}">${ck}/10</td>
+      <td>${t.rr||'-'}</td>
+      <td><span class="badge b-${t.result==='WIN'?'win':t.result==='LOSS'?'loss':t.result==='BE'?'be':'run'}">${t.result}</span></td>
+      <td class="${t.pnl>=0?'pos':'neg'}">${t.pnl?`${t.pnl>=0?'+':''}$${f(t.pnl)}`:'-'}</td>
+      <td><button class="btn btn-d btn-s" onclick="delTrade(${t.id})">✕</button></td></tr>`;}).join('');
+}
+
+async function saveTrade(e){
+  e.preventDefault();
+  const ck=[...document.querySelectorAll('.ck:checked')].map(c=>c.value).join(',');
+  await fetch('/api/trades',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    date:document.getElementById('t-date').value,
+    pair:document.getElementById('t-pair').value,
+    direction:document.getElementById('t-dir').value,
+    session:document.getElementById('t-session').value||null,
+    setup:document.getElementById('t-setup').value||null,
+    entry:+document.getElementById('t-entry').value||null,
+    sl:+document.getElementById('t-sl').value||null,
+    tp:+document.getElementById('t-tp').value||null,
+    rr:+document.getElementById('t-rr').value||null,
+    result:document.getElementById('t-result').value,
+    pnl:+document.getElementById('t-pnl').value||0,
+    checklist:ck,
+    notes:document.getElementById('t-notes').value||null,
+    emotions:document.getElementById('t-emotions').value||null,
+    lessons:document.getElementById('t-lessons').value||null
+  })});
+  closeModal('modal-trade');loadTrades();loadDashboard();
+}
+
+async function delTrade(id){if(!confirm('Xóa?'))return;await fetch('/api/trades/'+id,{method:'DELETE'});loadTrades();loadDashboard();}
+
+// Knowledge
+const knowledge=[
+  {t:'📊 BOS — Break of Structure',c:'Phá đỉnh (up) hoặc đáy (down) → trend tiếp tục. Nến CLOSE phá, body ≥50%.'},
+  {t:'🔄 CHoCH — Change of Character',c:'Phá cấu trúc NGƯỢC chiều trend → đảo chiều. Xảy ra SAU BOS.'},
+  {t:'📦 Order Block',c:'Nến cuối NGƯỢC MÀU trước impulse. Reversal ★★★★★ > Continuation ★★★★ > Breaker ★★★'},
+  {t:'📐 FVG — Fair Value Gap',c:'Khoảng trống giữa nến 1 và 3. Giá bị hút về lấp. FVG + OB = mạnh nhất.'},
+  {t:'💧 Liquidity',c:'BSL (equal highs), SSL (equal lows). ⚠️ BẮT BUỘC có sweep trước entry.'},
+  {t:'🪤 Inducement (IDM)',c:'Swing nhỏ dụ trader. Có IDM = setup mạnh hơn.'},
+  {t:'💰 Premium/Discount & OTE',c:'BUY ở Discount (<50%), SELL ở Premium (>50%). OTE = 62-79% Fib.'},
+  {t:'⏰ Kill Zone',c:'London: 14-17h VN 🔥. NY: 19-22h VN 🔥🔥. Chỉ trade trong Kill Zone.'},
+  {t:'🎯 Full Setup (4/4)',c:'Trend + OB trong zone + Sweep + BOS nhỏ. 4/4 = vào lệnh.'},
+  {t:'🛡️ Risk Management',c:'1-2%/lệnh. R:R ≥1:2. Max 3 lệnh/ngày. 2 thua = nghỉ.'},
+];
+function renderKnowledge(){
+  document.getElementById('knowledge-list').innerHTML=knowledge.map((k,i)=>`
+    <div class="card" style="cursor:pointer" onclick="this.querySelector('.kc').style.display=this.querySelector('.kc').style.display==='none'?'block':'none'">
+      <div class="ch"><h2 style="margin:0">${k.t}</h2><span>▼</span></div>
+      <div class="kc" style="display:none;font-size:14px;color:var(--dim);line-height:1.7">${k.c}</div>
+    </div>`).join('');
+}
+
+// Psychology
+const affs=['"Mỗi lệnh là độc lập."','"Không setup = không lệnh."','"Chờ đợi = kỹ năng."','"Process > Outcome."','"Self-awareness = power."'];
+let affIdx=0;
+function nextAff(){affIdx=(affIdx+1)%affs.length;document.getElementById('aff-text').textContent=affs[affIdx]}
+function renderPsychology(){
+  document.getElementById('aff-text').textContent=affs[0];
+  const moods=[['calm','😌 Bình tĩnh'],['anxious','😰 Lo lắng'],['fomo','🤑 FOMO'],['revenge','😤 Revenge'],['tired','😴 Mệt']];
+  const advice={calm:'✅ Tốt nhất!',anxious:'⚠️ Thở 5 lần. Giảm lot 50%.',fomo:'🛑 KHÔNG trade khi FOMO.',revenge:'🛑 Nghỉ 30 phút.',tired:'⚠️ Nghỉ. KHÔNG trade.'};
+  document.getElementById('mood-btns').innerHTML=moods.map(([k,l])=>`<button class="btn btn-g" onclick="document.getElementById('mood-result').style.display='block';document.getElementById('mood-result').textContent='${advice[k]}'">${l}</button>`).join('');
+}
+
+// Watchlist
+async function loadWatchlist(){
+  const items=await fetch('/api/watchlist').then(r=>r.json()).catch(()=>[]);
+  document.getElementById('wl-grid').innerHTML=items.length?items.map(w=>`
+    <div class="card">
+      <div style="font-size:18px;font-weight:700">${w.pair}</div>
+      <div style="font-size:28px;font-weight:700;color:${w.bias==='BUY'?'var(--green)':w.bias==='SELL'?'var(--red)':'var(--dim)'};margin:8px 0">${w.bias}</div>
+      <div style="font-size:13px;color:var(--dim)">${w.notes||''}</div>
+      <button class="btn btn-d btn-s" style="margin-top:12px" onclick="delWL(${w.id})">✕ Xóa</button>
+    </div>`).join(''):'<div class="card" style="text-align:center;color:var(--muted)">Chưa có cặp tiền</div>';
+}
+function openWL(){document.getElementById('modal-wl').classList.add('on')}
+async function saveWL(e){
+  e.preventDefault();
+  await fetch('/api/watchlist',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pair:document.getElementById('w-pair').value,bias:document.getElementById('w-bias').value,notes:document.getElementById('w-notes').value})});
+  closeModal('modal-wl');loadWatchlist();
+}
+async function delWL(id){await fetch('/api/watchlist/'+id,{method:'DELETE'});loadWatchlist();}
+
+// Init checklist
+const ckItems=['trend','ob_zone','fvg','idm','sweep','institutional','bos','killzone','rr_ok','risk_ok'];
+document.getElementById('checklist').innerHTML=ckItems.map(id=>`<label style="cursor:pointer;padding:3px 0"><input type="checkbox" class="ck" value="${id}" onchange="document.getElementById('ck-count').textContent=document.querySelectorAll('.ck:checked').length"> ${id.replace(/_/g,' ').replace('ok','')}</label>`).join('');
+
+// Init
+loadDashboard();
+renderKnowledge();
+renderPsychology();
+</script>
+</body>
+</html>
