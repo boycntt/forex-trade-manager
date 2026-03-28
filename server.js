@@ -97,6 +97,9 @@ app.delete('/api/watchlist/:id', (req, res) => {
   res.json({ ok: true });
 });
 
-app.get('/', (_, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
+// SPA fallback — must be AFTER static middleware
+app.get('*', (req, res) => {
+  res.sendFile(path.join(publicDir, 'index.html'));
+});
 
 app.listen(PORT, '0.0.0.0', () => console.log(`Trading Journal on port ${PORT}`));
